@@ -1,0 +1,4 @@
+bind_address = ":8080"
+
+[store]
+database_url = "user=postgres password=24702470 host=localhost dbname=restapi_dev sslmode=disable"
