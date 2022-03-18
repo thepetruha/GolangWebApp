@@ -33,6 +33,8 @@ func (s *APIServer) Start() error {
 		return err
 	}
 
+	defer s.store.Close()
+
 	fmt.Println("Start API server...")
 	return http.ListenAndServe(s.config.BindAddress, s.router)
 }
@@ -98,11 +100,13 @@ func (s *APIServer) HandleCreateUser() func(w http.ResponseWriter, r *http.Reque
 			Password: req.Password,
 		}
 
-		if _, err := s.store.User().Create(u); err != nil {
+		if err := s.store.User().Create(u); err != nil {
 			fmt.Println("Error on create user", err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		}
 
+		u.Snitized()
 		s.response(w, r, http.StatusCreated, u)
 	}
 }

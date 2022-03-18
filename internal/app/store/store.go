@@ -45,7 +45,7 @@ func (s *Store) Close() error {
 
 func (s *Store) User() *UserRepository {
 	if s.userRepository != nil {
-		return nil
+		return s.userRepository
 	}
 
 	s.userRepository = &UserRepository{

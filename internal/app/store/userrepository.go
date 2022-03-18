@@ -1,18 +1,30 @@
 package store
 
-import "webapp/internal/app/model"
+import (
+	"errors"
+	"fmt"
+	"webapp/internal/app/model"
+)
 
 type UserRepository struct {
 	store *Store
 }
 
-func (r *UserRepository) Create(u *model.User) (*model.User, error) {
-	if err := r.store.db.QueryRow(
-		`INSERT INTO users VALUES ($1, $2) RETURNING id`,
-		u.Email,
-		u.Password).Scan(&u.ID); err != nil {
-		return nil, err
+func (r *UserRepository) Create(u *model.User) error {
+
+	if err := u.BeforeCreate(); err != nil {
+		return err
 	}
 
-	return u, nil
+	var row = r.store.db.QueryRow(`INSERT INTO users (email, encrypted_password) VALUES ($1, $2) RETURNING id`, u.Email, u.EncryptedPassword)
+	if row == nil {
+		return errors.New("Error querying")
+	}
+
+	if err := row.Scan(&u.ID); err != nil {
+		fmt.Println("Error querying insert user")
+		return err
+	}
+
+	return nil
 }
