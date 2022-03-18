@@ -87,6 +87,7 @@ func (s *APIServer) HandleCreateUser() func(w http.ResponseWriter, r *http.Reque
 		Password string `json:"password"`
 	}
 
+	//получение данных от клиента, дабавление в БД и ответ клиенту
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 
