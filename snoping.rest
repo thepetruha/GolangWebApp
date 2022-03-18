@@ -12,6 +12,15 @@ POST http://localhost:8080/createuser HTTP/1.1
 Content-type: application/json
 
 {
+    "email": "thepetruha228@gmail.com",
+    "password": "чпокндокн"
+}
+
+### snoping authorization users
+POST http://localhost:8080/session HTTP/1.1
+Content-type: application/json
+
+{
     "email": "instasamka@gmail.com",
     "password": "чпокндокн"
 }

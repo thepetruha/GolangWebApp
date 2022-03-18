@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// структура хранилища
 type Store struct {
 	Config         *Config
 	db             *sql.DB

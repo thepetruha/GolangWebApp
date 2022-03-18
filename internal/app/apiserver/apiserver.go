@@ -44,6 +44,7 @@ func (s *APIServer) ConfigureRouter() {
 	s.router.HandleFunc("/", s.HandleStart())
 	s.router.HandleFunc("/todo", s.HandleTodo())
 	s.router.HandleFunc("/about", s.HandleAbout())
+	s.router.HandleFunc("/session", s.HandleSessionUser()).Methods("POST")
 	s.router.HandleFunc("/createuser", s.HandleCreateUser()).Methods("POST")
 }
 
@@ -92,7 +93,7 @@ func (s *APIServer) HandleCreateUser() func(w http.ResponseWriter, r *http.Reque
 		req := &request{}
 
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			fmt.Println("Error json decoding request", err)
+			s.StatusError(w, r, http.StatusUnauthorized, "Incorrect format data")
 			return
 		}
 
@@ -102,13 +103,38 @@ func (s *APIServer) HandleCreateUser() func(w http.ResponseWriter, r *http.Reque
 		}
 
 		if err := s.store.User().Create(u); err != nil {
-			fmt.Println("Error on create user", err)
-			w.WriteHeader(http.StatusUnprocessableEntity)
+			s.StatusError(w, r, http.StatusUnprocessableEntity, "Error created on user")
 			return
 		}
 
 		u.Snitized()
 		s.response(w, r, http.StatusCreated, u)
+	}
+}
+
+//авторизация пользователя
+func (s *APIServer) HandleSessionUser() func(w http.ResponseWriter, r *http.Request) {
+	type request struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	//получение данных от клиента, поиск клиента в БД, проверка пароля и ответ клиенту
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.StatusError(w, r, http.StatusUnauthorized, "Incorrect format data")
+			return
+		}
+
+		u, err := s.store.User().FindByEmail(req.Email)
+		if err != nil || !u.ComparePassword(req.Password) {
+			s.StatusError(w, r, http.StatusUnauthorized, "Incorrect email of password")
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(u)
 	}
 }
 
@@ -118,4 +144,9 @@ func (s *APIServer) response(w http.ResponseWriter, r *http.Request, code int, d
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(data)
 	}
+}
+
+//обработка ошибка на роутах
+func (s *APIServer) StatusError(w http.ResponseWriter, r *http.Request, code int, err string) {
+	s.response(w, r, code, map[string]string{"error": err})
 }
