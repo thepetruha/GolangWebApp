@@ -1,4 +1,6 @@
 bind_address = ":4040"
 
 [store]
-database_url = "user=user password=mypassword host=postgres dbname=restapi_dev port=5432 sslmode=disable"
+session_key="645266556A586E3272357538782F413F4428472B4B6250655368566B5970337336763979244226452948404D635166546A576E5A7134743777217A25432A462D"
+# database_url = "user=user password=mypassword host=postgres dbname=restapi_dev port=5432 sslmode=disable"
+database_url = "user=postgres password=24702470 host=localhost dbname=restapi_dev port=5432 sslmode=disable"

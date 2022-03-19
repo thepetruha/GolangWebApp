@@ -6,6 +6,7 @@ import "webapp/internal/app/store"
 type Config struct {
 	BindAddress string `toml:"bind_addres"`
 	Store       *store.Config
+	SessionKey  string `toml:"session_key"`
 }
 
 //возвращает структуру конфига

@@ -8,16 +8,16 @@ GET http://localhost:4040/todo
 GET http://localhost:4040/about
 
 ### snoping create users
-POST http://localhost:8080/createuser HTTP/1.1
+POST http://localhost:4040/createuser HTTP/1.1
 Content-type: application/json
 
 {
-    "email": "tdsfdsfdsf@gmail.com",
+    "email": "trix@gmail.com",
     "password": "чпокндокн"
 }
 
 ### snoping authorization users
-POST http://localhost:8080/session HTTP/1.1
+POST http://localhost:4040/session HTTP/1.1
 Content-type: application/json
 
 {

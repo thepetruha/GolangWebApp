@@ -8,20 +8,25 @@ import (
 	"webapp/internal/app/store"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
+
+var sessionName = "webappgoalng"
 
 //структура сервера
 type APIServer struct {
-	config *Config
-	router *mux.Router
-	store  *store.Store
+	config       *Config
+	router       *mux.Router
+	store        *store.Store
+	sessionStore sessions.Store
 }
 
 //возвращает структуру сконфигурируимого сервера
-func NewServer(c *Config) *APIServer {
+func NewServer(c *Config, sessionStore sessions.Store) *APIServer {
 	return &APIServer{
-		config: c,
-		router: mux.NewRouter(),
+		config:       c,
+		router:       mux.NewRouter(),
+		sessionStore: sessionStore,
 	}
 }
 
@@ -134,8 +139,22 @@ func (s *APIServer) HandleSessionUser() func(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(u)
+		session, err := s.sessionStore.Get(r, sessionName)
+		if err != nil {
+			s.StatusError(w, r, http.StatusInternalServerError, "Could not find session")
+			return
+		}
+
+		session.Values["user_id"] = u.ID
+		if err := s.sessionStore.Save(r, w, session); err != nil {
+			s.StatusError(w, r, http.StatusInternalServerError, "Could not find session")
+			return
+		}
+
+		s.response(w, r, http.StatusOK, u)
+
+		// w.WriteHeader(http.StatusOK)
+		// json.NewEncoder(w).Encode(u)
 	}
 }
 

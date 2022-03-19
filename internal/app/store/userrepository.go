@@ -13,7 +13,6 @@ type UserRepository struct {
 
 //занесение пользователя в БД
 func (r *UserRepository) Create(u *model.User) error {
-
 	if err := u.BeforeCreate(); err != nil {
 		return err
 	}

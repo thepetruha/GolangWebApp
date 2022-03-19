@@ -1,6 +1,12 @@
 package model
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"errors"
+	"fmt"
+	"net/mail"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 //структура пользователя
 type User struct {
@@ -10,6 +16,17 @@ type User struct {
 	EncryptedPassword string `json:"-"`
 }
 
+//валидация email адреса
+func (u *User) ValidateEmail(email string) bool {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		fmt.Println("Error validating email:", email)
+		return false
+	}
+
+	return true
+}
+
 //очиска пароля из структуры
 func (u *User) Snitized() {
 	u.Password = ""
@@ -17,13 +34,15 @@ func (u *User) Snitized() {
 
 //проверка длинны, хеширование, присваивание пароля структуре
 func (u *User) BeforeCreate() error {
-	if len(u.Password) > 0 {
+	if len(u.Password) > 0 && u.ValidateEmail(u.Email) {
 		enc, err := encrypntString(u.Password)
 		if err != nil {
 			return err
 		}
 
 		u.EncryptedPassword = enc
+	} else {
+		return errors.New("Error: incorrect email or password")
 	}
 
 	return nil

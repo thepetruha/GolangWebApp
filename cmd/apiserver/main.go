@@ -6,6 +6,7 @@ import (
 	"webapp/internal/app/apiserver"
 
 	"github.com/BurntSushi/toml"
+	"github.com/gorilla/sessions"
 )
 
 var configPath string
@@ -22,7 +23,8 @@ func main() {
 		return
 	}
 
-	server := apiserver.NewServer(config)
+	sessionStore := sessions.NewCookieStore([]byte(config.SessionKey))
+	server := apiserver.NewServer(config, sessionStore)
 
 	if err := server.Start(); err != nil {
 		fmt.Println("Error: start server!")
