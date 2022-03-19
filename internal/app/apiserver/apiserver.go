@@ -30,6 +30,7 @@ func (s *APIServer) Start() error {
 	s.ConfigureRouter()
 
 	if err := s.ConfigureStore(); err != nil {
+		fmt.Println(err)
 		return err
 	}
 

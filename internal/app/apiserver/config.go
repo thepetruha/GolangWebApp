@@ -11,7 +11,7 @@ type Config struct {
 //возвращает структуру конфига
 func NewConfig() *Config {
 	return &Config{
-		BindAddress: ":8080",
+		BindAddress: ":4040",
 		Store:       store.NewConfig(),
 	}
 }

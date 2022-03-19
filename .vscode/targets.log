@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Fri Mar 18 12:32:24 2022
+# Make data base, printed on Sat Mar 19 14:17:22 2022
 
 # Variables
 
@@ -40,7 +40,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/r1/4wtzhb750ms0v7rf9g9b32nc0000gn/T/vscode-ipc-6754ad48-71d2-47b3-ae51-73ee1bc869c4.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/r1/4wtzhb750ms0v7rf9g9b32nc0000gn/T/vscode-ipc-d7c06001-5e18-41cd-9d67-12a0a9dca40e.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -56,7 +56,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.zVtq5lKfRt/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.wUq6E20w7M/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -140,7 +140,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 85239
+VSCODE_PID = 5185
 # variable set hash-table stats:
 # Load=65/1024=6%, Rehash=0, Collisions=2/89=2%
 
@@ -150,9 +150,9 @@ VSCODE_PID = 85239
 
 # Directories
 
-# . (device 16777232, inode 19773834): 13 files, no impossibilities.
+# . (device 16777234, inode 19773834): 15 files, no impossibilities.
 
-# 13 files, no impossibilities in 1 directories.
+# 15 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -169,7 +169,7 @@ all:
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
-.PHONY: build
+.PHONY: build fbuild
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -183,7 +183,7 @@ all:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-14 21:32:18
+#  Last modified 2022-03-18 16:29:16
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -204,8 +204,18 @@ build:
 #  Modification time never checked.
 #  File has not been updated.
 
+fbuild:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 7):
+	go mod download
+	go build -v ./cmd/apiserver
+	
+
 # files hash-table stats:
-# Load=6/1024=1%, Rehash=0, Collisions=0/19=0%
+# Load=7/1024=1%, Rehash=0, Collisions=0/22=0%
 # VPATH Search Paths
 
 # No `vpath' search paths.
@@ -217,7 +227,7 @@ build:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Fri Mar 18 12:32:24 2022
+# Finished Make data base on Sat Mar 19 14:17:22 2022
 
  
 make: *** No rule to make target `all'.  Stop.

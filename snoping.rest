@@ -1,18 +1,18 @@
 ### snoping welcome
-GET http://localhost:8080/
+GET http://localhost:4040/
 
 ### snoping todo
-GET http://localhost:8080/todo
+GET http://localhost:4040/todo
 
 ### snoping about
-GET http://localhost:8080/about
+GET http://localhost:4040/about
 
 ### snoping create users
 POST http://localhost:8080/createuser HTTP/1.1
 Content-type: application/json
 
 {
-    "email": "thepetruha228@gmail.com",
+    "email": "tdsfdsfdsf@gmail.com",
     "password": "чпокндокн"
 }
 
@@ -21,6 +21,6 @@ POST http://localhost:8080/session HTTP/1.1
 Content-type: application/json
 
 {
-    "email": "instasamka@gmail.com",
+    "email": "thepetruha228@gmail.com",
     "password": "чпокндокн"
 }

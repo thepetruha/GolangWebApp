@@ -1,0 +1,57 @@
+# Use postgres/example user/password credentials
+version: '3.8'
+
+services:
+  go:
+    container_name: go
+    restart: always
+    build:
+      context: .
+    ports: 
+      - 8080:4040
+    depends_on:
+      - postgres
+
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   environment:
+  #     POSTGRES_PASSWORD: 24702470
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_DB: restapi_dev
+  #   ports:
+  #     - 5432:5432
+  #   depends_on:
+  #     - adminer
+  #   # networks:
+  #   #   - app
+  #   volumes: 
+  #     - pgdata:/var/lib/postgresql/data
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: restapi_dev
+    ports:
+      - "5432:5432"
+    volumes: 
+      - dbdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 5050:8080
+    # networks:
+    #   - app
+
+# networks:
+#   app:
+#     driver: bridge
+
+volumes: 
+  dbdata:

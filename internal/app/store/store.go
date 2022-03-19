@@ -23,7 +23,7 @@ func NewStore(config *Config) *Store {
 
 //открытие соединения с базой данных
 func (s *Store) Open() error {
-	db, err := sql.Open("postgres", s.Config.DatabaseURL)
+	db, err := sql.Open("postgres", s.Config.DatabaseURL) //s.Config.DatabaseURL
 	if err != nil {
 		return err
 	}
