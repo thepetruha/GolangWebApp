@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,7 +12,12 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-var sessionName = "webappgoalng"
+const (
+	sessionName        = "webappgoalng"
+	ctxKeyUser  ctxKey = iota
+)
+
+type ctxKey int8
 
 //структура сервера
 type APIServer struct {
@@ -47,11 +53,14 @@ func (s *APIServer) Start() error {
 
 //конфигурирование маршрутов
 func (s *APIServer) ConfigureRouter() {
-	s.router.HandleFunc("/", s.HandleStart())
-	s.router.HandleFunc("/todo", s.HandleTodo())
-	s.router.HandleFunc("/about", s.HandleAbout())
 	s.router.HandleFunc("/session", s.HandleSessionUser()).Methods("POST")
 	s.router.HandleFunc("/createuser", s.HandleCreateUser()).Methods("POST")
+
+	private := s.router.PathPrefix("/private").Subrouter()
+	private.Use(s.authenticateUser)
+	private.HandleFunc("/whoami", s.HandleWhoami()).Methods("GET")
+	private.HandleFunc("/createtodo", s.HandleCreateRowTodo()).Methods("POST")
+	private.HandleFunc("/listtodo", s.HandleGetListTodo()).Methods("GET")
 }
 
 //конфигурирует окрытие соеденения с бд
@@ -66,24 +75,79 @@ func (s *APIServer) ConfigureStore() error {
 	return nil
 }
 
-//функция обработки стартового маршрута
-func (s *APIServer) HandleStart() http.HandlerFunc {
+//middleware для входа на приватные страницы
+func (s *APIServer) authenticateUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session, err := s.sessionStore.Get(r, sessionName)
+		if err != nil {
+			s.StatusError(w, r, http.StatusInternalServerError, "Could not find session")
+			return
+		}
+
+		id, ok := session.Values["user_id"]
+		if !ok {
+			s.StatusError(w, r, http.StatusUnauthorized, "Error: not authenticated")
+			return
+		}
+
+		u, err := s.store.User().FindUserId(id.(int))
+		if err != nil {
+			s.StatusError(w, r, http.StatusUnauthorized, "Error: not authenticated")
+		}
+
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, u)))
+	})
+}
+
+func (s *APIServer) HandleGetListTodo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome")
+		customer_id := r.Context().Value(ctxKeyUser).(*model.User).ID
+		rows, err := s.store.Todo().FindByUserId(customer_id)
+		if err != nil {
+			return
+		}
+
+		fmt.Println(rows)
+
+		s.response(w, r, http.StatusOK, rows)
 	}
 }
 
-//функция обработки маршрута вывода списка
-func (s *APIServer) HandleTodo() http.HandlerFunc {
+func (s *APIServer) HandleCreateRowTodo() http.HandlerFunc {
+	type requset struct {
+		Text string `json:"text"`
+		Date string `json:"date"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "this list")
+		req := &requset{}
+
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.StatusError(w, r, http.StatusUnauthorized, "Incorrect format data")
+			return
+		}
+
+		customer_id := r.Context().Value(ctxKeyUser).(*model.User).ID
+
+		t := &model.ToDo{
+			CustomerID: customer_id,
+			Text:       req.Text,
+			Date:       req.Date,
+		}
+
+		if err := s.store.Todo().CreateRow(t); err != nil {
+			s.StatusError(w, r, http.StatusUnprocessableEntity, "Error created on user")
+			return
+		}
+
+		s.response(w, r, http.StatusOK, t)
 	}
 }
 
-//функция обработки маршрута контакты
-func (s *APIServer) HandleAbout() http.HandlerFunc {
+//функция приватной страницы /private/whoami
+func (s *APIServer) HandleWhoami() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "+79516864862")
+		s.response(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User))
 	}
 }
 
@@ -152,9 +216,6 @@ func (s *APIServer) HandleSessionUser() func(w http.ResponseWriter, r *http.Requ
 		}
 
 		s.response(w, r, http.StatusOK, u)
-
-		// w.WriteHeader(http.StatusOK)
-		// json.NewEncoder(w).Encode(u)
 	}
 }
 

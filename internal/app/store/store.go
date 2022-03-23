@@ -12,6 +12,7 @@ type Store struct {
 	Config         *Config
 	db             *sql.DB
 	userRepository *UserRepository
+	todoRepository *TodoRepository
 }
 
 //функция возращающая новый store
@@ -54,4 +55,16 @@ func (s *Store) User() *UserRepository {
 	}
 
 	return s.userRepository
+}
+
+func (s *Store) Todo() *TodoRepository {
+	if s.todoRepository != nil {
+		return s.todoRepository
+	}
+
+	s.todoRepository = &TodoRepository{
+		store: s,
+	}
+
+	return s.todoRepository
 }
